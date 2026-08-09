@@ -1,0 +1,7 @@
+📁 repository
+│
+├── 📄 index.html      ← replace contents with above
+├── 📄 sketch.js       ← THIS is where the game code goes
+├── 📄 style.css       ← keep your CSS
+├── 📄 .gitignore
+└── 📄 LICENSE
