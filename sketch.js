@@ -1,23 +1,36 @@
-/*
-============================================================
+# /*
+
 CELESTIAL POWERS RPG
 JŪNITEN ELEMENTAL DYNAMICS
-============================================================
+==========================
 
-CONTROLS
-WASD       Move
-1-7        Select elemental power
-Q E R      SUN forms
-T Y U      MOON forms
-I O P      FIRE forms
-F G H      WATER forms
-J K L      WIND forms
-Z X C      EARTH forms
-V B N      THUNDER forms
-M          Toggle guide
-SPACE      Reset character
-F11        Browser fullscreen
-============================================================
+MOVEMENT
+W A S D = Move
+
+POWERS
+1 = SUN
+2 = MOON
+3 = FIRE
+4 = WATER
+5 = WIND
+6 = EARTH
+7 = THUNDER
+
+21 FORMS
+SUN     Q E R
+MOON    T Y U
+FIRE    I O P
+WATER   F G H
+WIND    J K L
+EARTH   Z X C
+THUNDER V B N
+
+OTHER
+M = Guide
+SPACE = Reset
+F = Fullscreen
+==============
+
 */
 
 let player;
@@ -31,114 +44,93 @@ let showGuide = true;
 let worldTime = 0;
 
 let keys = {};
-let fullscreenButton;
-
-// ============================================================
-// POWER DATA
-// ============================================================
 
 const powers = {
-  SUN: {
-    color: [255, 195, 45],
-    forms: [
-      ["Q", "SOLAR KNIGHT", "LION"],
-      ["E", "SOLAR LION", "LION"],
-      ["R", "SOLAR PHOENIX", "PHOENIX"]
-    ]
-  },
+SUN: {
+color: [255, 195, 45],
+forms: [
+["Q", "SOLAR KNIGHT", "LION"],
+["E", "SOLAR LION", "LION"],
+["R", "SOLAR PHOENIX", "PHOENIX"]
+]
+},
 
-  MOON: {
-    color: [140, 190, 255],
-    forms: [
-      ["T", "LUNAR KNIGHT", "WOLF"],
-      ["Y", "LUNAR WOLF", "WOLF"],
-      ["U", "LUNAR OWL", "OWL"]
-    ]
-  },
+MOON: {
+color: [140, 190, 255],
+forms: [
+["T", "LUNAR KNIGHT", "WOLF"],
+["Y", "LUNAR WOLF", "WOLF"],
+["U", "LUNAR OWL", "OWL"]
+]
+},
 
-  FIRE: {
-    color: [255, 75, 25],
-    forms: [
-      ["I", "FLAME WARRIOR", "FOX"],
-      ["O", "FLAME FOX", "FOX"],
-      ["P", "FLAME DRAGON", "DRAGON"]
-    ]
-  },
+FIRE: {
+color: [255, 80, 25],
+forms: [
+["I", "FLAME WARRIOR", "FOX"],
+["O", "FLAME FOX", "FOX"],
+["P", "FLAME DRAGON", "DRAGON"]
+]
+},
 
-  WATER: {
-    color: [50, 170, 255],
-    forms: [
-      ["F", "TIDE WARRIOR", "DOLPHIN"],
-      ["G", "AQUA DOLPHIN", "DOLPHIN"],
-      ["H", "OCEAN SERPENT", "SERPENT"]
-    ]
-  },
+WATER: {
+color: [50, 170, 255],
+forms: [
+["F", "TIDE WARRIOR", "DOLPHIN"],
+["G", "AQUA DOLPHIN", "DOLPHIN"],
+["H", "OCEAN SERPENT", "SERPENT"]
+]
+},
 
-  WIND: {
-    color: [80, 220, 170],
-    forms: [
-      ["J", "SKY WARRIOR", "HAWK"],
-      ["K", "WIND HAWK", "HAWK"],
-      ["L", "STORM EAGLE", "EAGLE"]
-    ]
-  },
+WIND: {
+color: [80, 220, 170],
+forms: [
+["J", "SKY WARRIOR", "HAWK"],
+["K", "WIND HAWK", "HAWK"],
+["L", "STORM EAGLE", "EAGLE"]
+]
+},
 
-  EARTH: {
-    color: [180, 125, 70],
-    forms: [
-      ["Z", "EARTH GUARDIAN", "BEAR"],
-      ["X", "EARTH BEAR", "BEAR"],
-      ["C", "STONE RHINO", "RHINO"]
-    ]
-  },
+EARTH: {
+color: [180, 125, 70],
+forms: [
+["Z", "EARTH GUARDIAN", "BEAR"],
+["X", "EARTH BEAR", "BEAR"],
+["C", "STONE RHINO", "RHINO"]
+]
+},
 
-  THUNDER: {
-    color: [150, 200, 255],
-    forms: [
-      ["V", "THUNDER WARRIOR", "TIGER"],
-      ["B", "THUNDER TIGER", "TIGER"],
-      ["N", "LIGHTNING DRAGON", "DRAGON"]
-    ]
-  }
+THUNDER: {
+color: [150, 200, 255],
+forms: [
+["V", "THUNDER WARRIOR", "TIGER"],
+["B", "THUNDER TIGER", "TIGER"],
+["N", "LIGHTNING DRAGON", "DRAGON"]
+]
+}
 };
+
+const powerOrder = [
+"SUN",
+"MOON",
+"FIRE",
+"WATER",
+"WIND",
+"EARTH",
+"THUNDER"
+];
 
 // ============================================================
 // SETUP
 // ============================================================
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+createCanvas(windowWidth, windowHeight);
 
-  player = new Player();
-  companion = new Companion();
+player = new Player();
+companion = new Companion();
 
-  createFullscreenButton();
-  resetGame();
-}
-
-// ============================================================
-// MAIN LOOP
-// ============================================================
-
-function draw() {
-  worldTime += 0.015;
-
-  drawBackground();
-
-  updatePlayer();
-  updateCompanion();
-
-  updateParticles();
-  drawPowerEffects();
-
-  drawCompanion();
-  drawPlayer();
-
-  drawHUD();
-
-  if (showGuide) {
-    drawGuide();
-  }
+resetGame();
 }
 
 // ============================================================
@@ -146,12 +138,34 @@ function draw() {
 // ============================================================
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+resizeCanvas(windowWidth, windowHeight);
 
-  if (player) {
-    player.x = constrain(player.x, 50, width - 50);
-    player.y = constrain(player.y, 110, height - 50);
-  }
+if (player) {
+player.keepInside();
+}
+}
+
+// ============================================================
+// MAIN LOOP
+// ============================================================
+
+function draw() {
+worldTime += 0.01;
+
+drawWorld();
+
+player.update();
+companion.update();
+
+drawPowerEffects();
+drawCompanion();
+drawPlayer();
+
+drawHUD();
+
+if (showGuide) {
+drawGuide();
+}
 }
 
 // ============================================================
@@ -159,53 +173,72 @@ function windowResized() {
 // ============================================================
 
 class Player {
-  constructor() {
-    this.x = width / 2;
-    this.y = height / 2;
-    this.speed = 4;
-    this.direction = "DOWN";
-    this.walkCycle = 0;
-  }
 
-  update() {
-    let dx = 0;
-    let dy = 0;
+constructor() {
+this.x = width / 2;
+this.y = height / 2 + 50;
 
-    if (keys["W"]) {
-      dy -= 1;
-      this.direction = "UP";
-    }
+```
+this.speed = 4.2;
 
-    if (keys["S"]) {
-      dy += 1;
-      this.direction = "DOWN";
-    }
+this.direction = "DOWN";
+this.walkCycle = 0;
+```
 
-    if (keys["A"]) {
-      dx -= 1;
-      this.direction = "LEFT";
-    }
+}
 
-    if (keys["D"]) {
-      dx += 1;
-      this.direction = "RIGHT";
-    }
+update() {
 
-    if (dx !== 0 || dy !== 0) {
-      let magnitude = sqrt(dx * dx + dy * dy);
+```
+if (showGuide) {
+  return;
+}
 
-      dx /= magnitude;
-      dy /= magnitude;
+let dx = 0;
+let dy = 0;
 
-      this.x += dx * this.speed;
-      this.y += dy * this.speed;
+if (keys["W"]) {
+  dy -= 1;
+  this.direction = "UP";
+}
 
-      this.walkCycle += 0.25;
-    }
+if (keys["S"]) {
+  dy += 1;
+  this.direction = "DOWN";
+}
 
-    this.x = constrain(this.x, 55, width - 55);
-    this.y = constrain(this.y, 115, height - 55);
-  }
+if (keys["A"]) {
+  dx -= 1;
+  this.direction = "LEFT";
+}
+
+if (keys["D"]) {
+  dx += 1;
+  this.direction = "RIGHT";
+}
+
+if (dx !== 0 || dy !== 0) {
+
+  let length = sqrt(dx * dx + dy * dy);
+
+  dx /= length;
+  dy /= length;
+
+  this.x += dx * this.speed;
+  this.y += dy * this.speed;
+
+  this.walkCycle += 0.3;
+}
+
+this.keepInside();
+```
+
+}
+
+keepInside() {
+this.x = constrain(this.x, 55, width - 55);
+this.y = constrain(this.y, 115, height - 55);
+}
 }
 
 // ============================================================
@@ -213,584 +246,89 @@ class Player {
 // ============================================================
 
 class Companion {
-  constructor() {
-    this.x = width / 2 - 65;
-    this.y = height / 2 + 20;
-    this.angle = 0;
-  }
 
-  update() {
-    let targetX = player.x - 55;
-    let targetY = player.y + 20;
+constructor() {
+this.x = width / 2 - 60;
+this.y = height / 2 + 80;
 
-    this.x = lerp(this.x, targetX, 0.08);
-    this.y = lerp(this.y, targetY, 0.08);
+```
+this.angle = 0;
+```
 
-    this.angle += 0.04;
-  }
+}
+
+update() {
+
+```
+if (!player) {
+  return;
+}
+
+let targetX = player.x - 60;
+let targetY = player.y + 25;
+
+this.x = lerp(this.x, targetX, 0.07);
+this.y = lerp(this.y, targetY, 0.07);
+
+this.angle += 0.04;
+```
+
+}
 }
 
 // ============================================================
-// BACKGROUND
+// WORLD
 // ============================================================
 
-function drawBackground() {
-  let c = powers[currentPower].color;
+function drawWorld() {
 
-  background(4, 8, 18);
+background(4, 8, 17);
 
-  // Grid
-  stroke(25, 45, 65, 90);
-  strokeWeight(1);
+// Grid
+stroke(30, 50, 70, 75);
+strokeWeight(1);
 
-  for (let x = 0; x < width; x += 50) {
-    line(x, 80, x, height);
-  }
-
-  for (let y = 100; y < height; y += 50) {
-    line(0, y, width, y);
-  }
-
-  // Arena
-  noFill();
-
-  stroke(c[0], c[1], c[2], 40);
-  strokeWeight(2);
-
-  ellipse(
-    width / 2,
-    height / 2 + 35,
-    min(width * 0.85, 1000),
-    min(height * 0.65, 600)
-  );
-
-  // Stars
-  noStroke();
-
-  for (let i = 0; i < 80; i++) {
-    let x = (i * 97 + frameCount * 0.15) % width;
-    let y = 90 + ((i * 47) % max(100, height - 90));
-
-    fill(120, 180, 230, 45);
-    circle(x, y, 2);
-  }
+for (let x = 0; x < width; x += 50) {
+line(x, 85, x, height);
 }
 
-// ============================================================
-// PARTICLES
-// ============================================================
-
-class Particle {
-  constructor(x, y, type) {
-    this.pos = createVector(x, y);
-    this.vel = p5.Vector.random2D().mult(random(0.5, 2));
-    this.acc = createVector(0, 0);
-    this.life = random(120, 255);
-    this.type = type;
-  }
-
-  applyForce(force) {
-    this.acc.add(force);
-  }
-
-  update() {
-    this.vel.add(this.acc);
-    this.pos.add(this.vel);
-
-    this.acc.mult(0);
-    this.life -= 2;
-  }
-
-  dead() {
-    return this.life <= 0;
-  }
-
-  show(c, size) {
-    noStroke();
-    fill(c[0], c[1], c[2], this.life);
-    circle(this.pos.x, this.pos.y, size);
-  }
+for (let y = 100; y < height; y += 50) {
+line(0, y, width, y);
 }
 
-// ============================================================
-// PARTICLE MANAGEMENT
-// ============================================================
+// Arena
+let c = powers[currentPower].color;
 
-function resetParticles() {
-  particles = [];
+noFill();
+stroke(c[0], c[1], c[2], 45);
+strokeWeight(2);
 
-  for (let i = 0; i < 140; i++) {
-    particles.push(
-      new Particle(
-        random(width),
-        random(100, height),
-        currentPower
-      )
-    );
-  }
+ellipse(
+width / 2,
+height / 2 + 40,
+min(width * 0.8, 900),
+min(height * 0.65, 520)
+);
+
+// Celestial particles
+noStroke();
+
+for (let i = 0; i < 90; i++) {
+
+```
+let x =
+  (i * 97 + frameCount * 0.15) %
+  width;
+
+let y =
+  100 + ((i * 47) % max(100, height - 100));
+
+fill(120, 170, 220, 40);
+
+circle(x, y, 2);
+```
+
 }
-
-function updateParticles() {
-  if (particles.length === 0) {
-    resetParticles();
-  }
-
-  for (let i = particles.length - 1; i >= 0; i--) {
-    let p = particles[i];
-
-    switch (currentPower) {
-      case "SUN":
-        updateSunParticle(p);
-        break;
-
-      case "MOON":
-        updateMoonParticle(p);
-        break;
-
-      case "FIRE":
-        updateFireParticle(p);
-        break;
-
-      case "WATER":
-        updateWaterParticle(p);
-        break;
-
-      case "WIND":
-        updateWindParticle(p);
-        break;
-
-      case "EARTH":
-        updateEarthParticle(p);
-        break;
-
-      case "THUNDER":
-        updateThunderParticle(p);
-        break;
-    }
-
-    p.update();
-
-    if (p.dead()) {
-      particles[i] = new Particle(
-        random(width),
-        random(100, height),
-        currentPower
-      );
-    }
-  }
-}
-
-// ============================================================
-// PARTICLE POWER BEHAVIOR
-// ============================================================
-
-function updateSunParticle(p) {
-  let center = createVector(player.x, player.y);
-
-  let dir = p5.Vector.sub(p.pos, center);
-
-  if (dir.mag() < 50) {
-    dir.normalize();
-    dir.mult(0.8);
-    p.applyForce(dir);
-  }
-
-  if (
-    p.pos.x < 0 ||
-    p.pos.x > width ||
-    p.pos.y < 80 ||
-    p.pos.y > height
-  ) {
-    p.pos.set(player.x, player.y);
-    p.vel = p5.Vector.random2D().mult(random(1, 4));
-  }
-}
-
-function updateMoonParticle(p) {
-  let center = createVector(player.x, player.y);
-
-  let force = p5.Vector.sub(center, p.pos);
-
-  let distance = constrain(force.mag(), 30, 350);
-
-  force.normalize();
-
-  force.mult(100 / (distance * distance));
-
-  p.applyForce(force);
-
-  let orbit = createVector(-force.y, force.x);
-  orbit.mult(0.8);
-
-  p.applyForce(orbit);
-}
-
-function updateFireParticle(p) {
-  let upward = createVector(
-    random(-0.5, 0.5),
-    -1.4
-  );
-
-  p.applyForce(upward);
-
-  if (p.pos.y < 90) {
-    p.pos.set(
-      player.x + random(-30, 30),
-      player.y + 30
-    );
-
-    p.life = 255;
-  }
-}
-
-function updateWaterParticle(p) {
-  let wave = sin(
-    p.pos.x * 0.02 +
-    worldTime * 4
-  );
-
-  p.applyForce(
-    createVector(
-      0.25,
-      wave * 0.02
-    )
-  );
-
-  if (p.pos.x > width + 20) {
-    p.pos.x = -20;
-  }
-}
-
-function updateWindParticle(p) {
-  let angle =
-    noise(
-      p.pos.x * 0.004,
-      p.pos.y * 0.004,
-      worldTime * 0.3
-    ) * TWO_PI * 4;
-
-  let flow =
-    p5.Vector.fromAngle(angle).mult(0.6);
-
-  p.applyForce(flow);
-
-  if (p.pos.x < -20) p.pos.x = width + 20;
-  if (p.pos.x > width + 20) p.pos.x = -20;
-
-  if (p.pos.y < 90) p.pos.y = height;
-  if (p.pos.y > height) p.pos.y = 90;
-}
-
-function updateEarthParticle(p) {
-  let target = createVector(
-    player.x,
-    player.y
-  );
-
-  let force = p5.Vector.sub(
-    target,
-    p.pos
-  );
-
-  if (force.mag() > 30) {
-    force.setMag(0.08);
-    p.applyForce(force);
-  }
-
-  p.vel.mult(0.96);
-}
-
-function updateThunderParticle(p) {
-  p.applyForce(
-    p5.Vector.random2D().mult(0.7)
-  );
-
-  if (
-    p.pos.x < 0 ||
-    p.pos.x > width ||
-    p.pos.y < 80 ||
-    p.pos.y > height
-  ) {
-    p.pos.set(
-      player.x + random(-100, 100),
-      player.y + random(-100, 100)
-    );
-  }
-}
-
-// ============================================================
-// POWER EFFECTS
-// ============================================================
-
-function drawPowerEffects() {
-  switch (currentPower) {
-    case "SUN":
-      drawSunEffect();
-      break;
-
-    case "MOON":
-      drawMoonEffect();
-      break;
-
-    case "FIRE":
-      drawFireEffect();
-      break;
-
-    case "WATER":
-      drawWaterEffect();
-      break;
-
-    case "WIND":
-      drawWindEffect();
-      break;
-
-    case "EARTH":
-      drawEarthEffect();
-      break;
-
-    case "THUNDER":
-      drawThunderEffect();
-      break;
-  }
-}
-
-// ============================================================
-// SUN EFFECT
-// ============================================================
-
-function drawSunEffect() {
-  let c = powers.SUN.color;
-
-  noFill();
-
-  stroke(c[0], c[1], c[2], 100);
-  strokeWeight(2);
-
-  let rotation = worldTime * 2;
-
-  for (let i = 0; i < 12; i++) {
-    let a =
-      rotation +
-      (TWO_PI * i) / 12;
-
-    line(
-      player.x + cos(a) * 30,
-      player.y + sin(a) * 30,
-      player.x + cos(a) * 70,
-      player.y + sin(a) * 70
-    );
-  }
-
-  noStroke();
-
-  fill(255, 210, 70, 50);
-  circle(player.x, player.y, 120);
-}
-
-// ============================================================
-// MOON EFFECT
-// ============================================================
-
-function drawMoonEffect() {
-  let c = powers.MOON.color;
-
-  noFill();
-
-  stroke(c[0], c[1], c[2], 100);
-  strokeWeight(2);
-
-  ellipse(
-    player.x,
-    player.y,
-    130,
-    70
-  );
-
-  ellipse(
-    player.x,
-    player.y,
-    180,
-    95
-  );
-}
-
-// ============================================================
-// FIRE EFFECT
-// ============================================================
-
-function drawFireEffect() {
-  let c = powers.FIRE.color;
-
-  noStroke();
-
-  fill(c[0], c[1], c[2], 40);
-  ellipse(
-    player.x,
-    player.y + 15,
-    100,
-    140
-  );
-
-  fill(255, 140, 20, 80);
-  ellipse(
-    player.x,
-    player.y - 10,
-    55,
-    100
-  );
-}
-
-// ============================================================
-// WATER EFFECT
-// ============================================================
-
-function drawWaterEffect() {
-  let c = powers.WATER.color;
-
-  noFill();
-
-  stroke(c[0], c[1], c[2], 100);
-  strokeWeight(2);
-
-  ellipse(
-    player.x,
-    player.y,
-    130,
-    55
-  );
-
-  ellipse(
-    player.x,
-    player.y,
-    180,
-    80
-  );
-
-  ellipse(
-    player.x,
-    player.y,
-    230,
-    105
-  );
-}
-
-// ============================================================
-// WIND EFFECT
-// ============================================================
-
-function drawWindEffect() {
-  let c = powers.WIND.color;
-
-  noFill();
-
-  stroke(c[0], c[1], c[2], 120);
-  strokeWeight(2);
-
-  arc(
-    player.x,
-    player.y,
-    170,
-    110,
-    worldTime,
-    worldTime + PI
-  );
-
-  arc(
-    player.x,
-    player.y,
-    220,
-    140,
-    worldTime + PI,
-    worldTime + TWO_PI
-  );
-}
-
-// ============================================================
-// EARTH EFFECT
-// ============================================================
-
-function drawEarthEffect() {
-  let c = powers.EARTH.color;
-
-  noStroke();
-
-  fill(c[0], c[1], c[2], 60);
-
-  circle(
-    player.x,
-    player.y + 25,
-    110
-  );
-
-  fill(c[0], c[1], c[2], 30);
-
-  circle(
-    player.x,
-    player.y + 25,
-    170
-  );
-}
-
-// ============================================================
-// THUNDER EFFECT
-// ============================================================
-
-function drawThunderEffect() {
-  if (frameCount % 8 !== 0) {
-    return;
-  }
-
-  stroke(190, 230, 255, 230);
-  strokeWeight(3);
-
-  drawLightning(
-    player.x - 80,
-    player.y - 100,
-    player.x,
-    player.y,
-    25
-  );
-
-  drawLightning(
-    player.x + 80,
-    player.y - 100,
-    player.x,
-    player.y,
-    25
-  );
-
-  noStroke();
-}
-
-function drawLightning(x1, y1, x2, y2, amount) {
-  if (amount < 3) {
-    line(x1, y1, x2, y2);
-    return;
-  }
-
-  let midX =
-    (x1 + x2) / 2 +
-    random(-amount, amount);
-
-  let midY =
-    (y1 + y2) / 2 +
-    random(-amount, amount);
-
-  drawLightning(
-    x1,
-    y1,
-    midX,
-    midY,
-    amount / 2
-  );
-
-  drawLightning(
-    midX,
-    midY,
-    x2,
-    y2,
-    amount / 2
-  );
 }
 
 // ============================================================
@@ -798,127 +336,106 @@ function drawLightning(x1, y1, x2, y2, amount) {
 // ============================================================
 
 function drawPlayer() {
-  push();
 
-  translate(
-    player.x,
-    player.y
-  );
+push();
 
-  let c =
-    powers[currentPower].color;
+translate(player.x, player.y);
 
-  // Aura
-  noStroke();
+let c = powers[currentPower].color;
 
-  for (let r = 80; r >= 30; r -= 10) {
-    fill(
-      c[0],
-      c[1],
-      c[2],
-      map(r, 80, 30, 5, 30)
-    );
+// Aura
+noStroke();
 
-    circle(0, 0, r);
-  }
+for (let r = 80; r > 25; r -= 8) {
 
-  // Shadow
-  fill(0, 0, 0, 120);
-  ellipse(0, 32, 50, 14);
+```
+fill(
+  c[0],
+  c[1],
+  c[2],
+  map(r, 80, 25, 5, 30)
+);
 
-  // Walking legs
-  let walking =
-    sin(player.walkCycle) * 5;
+circle(0, 0, r);
+```
 
-  stroke(30);
-  strokeWeight(7);
+}
 
-  line(
-    -8,
-    15,
-    -8 + walking,
-    32
-  );
+// Shadow
+fill(0, 0, 0, 110);
 
-  line(
-    8,
-    15,
-    8 - walking,
-    32
-  );
+ellipse(0, 34, 48, 13);
 
-  // Body
-  noStroke();
+// Legs
+let walking = sin(player.walkCycle) * 5;
 
-  fill(
-    c[0],
-    c[1],
-    c[2],
-    230
-  );
+stroke(25);
+strokeWeight(7);
 
-  ellipse(
-    0,
-    0,
-    34,
-    42
-  );
+line(
+-8,
+15,
+-8 + walking,
+32
+);
 
-  // Arms
-  stroke(
-    c[0],
-    c[1],
-    c[2]
-  );
+line(
+8,
+15,
+8 - walking,
+32
+);
 
-  strokeWeight(7);
+// Body
+noStroke();
 
-  line(
-    -15,
-    -2,
-    -26,
-    10
-  );
+fill(c[0], c[1], c[2], 230);
 
-  line(
-    15,
-    -2,
-    26,
-    10
-  );
+ellipse(0, 0, 31, 39);
 
-  // Head
-  noStroke();
+// Arms
+stroke(c[0], c[1], c[2]);
+strokeWeight(7);
 
-  fill(220, 175, 135);
+line(-14, -2, -25, 10);
+line(14, -2, 25, 10);
 
-  circle(
-    0,
-    -28,
-    30
-  );
+// Head
+noStroke();
 
-  // Hair
-  fill(30);
+fill(220, 175, 135);
 
-  arc(
-    0,
-    -32,
-    32,
-    27,
-    PI,
-    TWO_PI
-  );
+circle(0, -28, 30);
 
-  // Eyes
-  fill(10);
+// Hair
+fill(25);
 
-  circle(-5, -28, 3);
-  circle(5, -28, 3);
+arc(
+0,
+-32,
+32,
+27,
+PI,
+TWO_PI
+);
 
-  drawHeadgear();
+// Eyes
+fill(10);
 
-  pop();
+circle(-5, -28, 3);
+circle(5, -28, 3);
+
+drawHeadgear();
+
+// Direction ring
+noFill();
+
+stroke(255, 255, 255, 100);
+strokeWeight(1);
+
+circle(0, 0, 65);
+
+pop();
 }
 
 // ============================================================
@@ -926,137 +443,130 @@ function drawPlayer() {
 // ============================================================
 
 function drawHeadgear() {
-  let c =
-    powers[currentPower].color;
 
-  noStroke();
+let c = powers[currentPower].color;
 
-  if (currentPower === "SUN") {
-    fill(255, 205, 60);
+noStroke();
 
-    for (let i = 0; i < 8; i++) {
-      let a =
-        TWO_PI * i / 8;
+if (currentPower === "SUN") {
 
-      triangle(
-        cos(a) * 18,
-        -30 + sin(a) * 18,
+```
+fill(255, 205, 60);
 
-        cos(a + 0.15) * 12,
-        -30 + sin(a + 0.15) * 12,
+for (let i = 0; i < 8; i++) {
 
-        cos(a - 0.15) * 12,
-        -30 + sin(a - 0.15) * 12
-      );
-    }
-  }
+  let a = TWO_PI * i / 8;
 
-  else if (currentPower === "MOON") {
-    fill(
-      c[0],
-      c[1],
-      c[2]
-    );
+  triangle(
+    cos(a) * 18,
+    -30 + sin(a) * 18,
 
-    arc(
-      0,
-      -44,
-      30,
-      30,
-      -HALF_PI,
-      HALF_PI
-    );
-  }
+    cos(a + 0.15) * 12,
+    -30 + sin(a + 0.15) * 12,
 
-  else if (currentPower === "FIRE") {
-    fill(255, 70, 20);
+    cos(a - 0.15) * 12,
+    -30 + sin(a - 0.15) * 12
+  );
+}
+```
 
-    triangle(
-      -12,
-      -40,
-      0,
-      -56,
-      10,
-      -38
-    );
-  }
+}
 
-  else if (currentPower === "WATER") {
-    fill(
-      c[0],
-      c[1],
-      c[2]
-    );
+else if (currentPower === "MOON") {
 
-    arc(
-      0,
-      -42,
-      32,
-      22,
-      PI,
-      TWO_PI
-    );
-  }
+```
+fill(180, 215, 255);
 
-  else if (currentPower === "WIND") {
-    fill(
-      c[0],
-      c[1],
-      c[2]
-    );
+arc(
+  0,
+  -45,
+  28,
+  28,
+  -HALF_PI,
+  HALF_PI
+);
+```
 
-    triangle(
-      -10,
-      -40,
-      -26,
-      -50,
-      -7,
-      -32
-    );
+}
 
-    triangle(
-      10,
-      -40,
-      26,
-      -50,
-      7,
-      -32
-    );
-  }
+else if (currentPower === "FIRE") {
 
-  else if (currentPower === "EARTH") {
-    fill(
-      c[0],
-      c[1],
-      c[2]
-    );
+```
+fill(255, 80, 20);
 
-    rect(
-      -15,
-      -48,
-      30,
-      8,
-      3
-    );
-  }
+triangle(
+  -12,
+  -40,
+  0,
+  -55,
+  10,
+  -38
+);
+```
 
-  else if (currentPower === "THUNDER") {
-    fill(
-      c[0],
-      c[1],
-      c[2]
-    );
+}
 
-    beginShape();
+else if (currentPower === "WATER") {
 
-    vertex(-8, -38);
-    vertex(2, -55);
-    vertex(0, -43);
-    vertex(12, -48);
-    vertex(4, -35);
+```
+fill(60, 190, 255);
 
-    endShape(CLOSE);
-  }
+arc(
+  0,
+  -42,
+  30,
+  22,
+  PI,
+  TWO_PI
+);
+```
+
+}
+
+else if (currentPower === "WIND") {
+
+```
+fill(100, 240, 180);
+
+triangle(-10, -40, -25, -50, -7, -32);
+triangle(10, -40, 25, -50, 7, -32);
+```
+
+}
+
+else if (currentPower === "EARTH") {
+
+```
+fill(150, 100, 55);
+
+rect(
+  -14,
+  -48,
+  28,
+  8,
+  3
+);
+```
+
+}
+
+else if (currentPower === "THUNDER") {
+
+```
+fill(190, 225, 255);
+
+beginShape();
+
+vertex(-8, -38);
+vertex(2, -55);
+vertex(0, -43);
+vertex(12, -48);
+vertex(4, -35);
+
+endShape(CLOSE);
+```
+
+}
 }
 
 // ============================================================
@@ -1064,453 +574,462 @@ function drawHeadgear() {
 // ============================================================
 
 function drawCompanion() {
-  push();
 
-  translate(
-    companion.x,
-    companion.y
-  );
+push();
 
-  let c =
-    powers[currentPower].color;
+translate(
+companion.x,
+companion.y
+);
 
-  noStroke();
+let c = powers[currentPower].color;
 
-  fill(
-    c[0],
-    c[1],
-    c[2],
-    40
-  );
+noStroke();
 
-  circle(0, 0, 65);
+fill(c[0], c[1], c[2], 40);
 
-  let animal =
-    powers[currentPower]
-      .forms[currentForm][2];
+circle(0, 0, 65);
 
-  drawAnimal(
-    animal,
-    c
-  );
+let animal =
+powers[currentPower].forms[currentForm][2];
 
-  pop();
+if (animal === "LION") drawLion(c);
+if (animal === "WOLF") drawWolf(c);
+if (animal === "PHOENIX") drawPhoenix(c);
+if (animal === "OWL") drawOwl(c);
+if (animal === "FOX") drawFox(c);
+if (animal === "DRAGON") drawDragon(c);
+if (animal === "DOLPHIN") drawDolphin(c);
+if (animal === "SERPENT") drawSerpent(c);
+if (animal === "HAWK") drawHawk(c);
+if (animal === "EAGLE") drawEagle(c);
+if (animal === "BEAR") drawBear(c);
+if (animal === "RHINO") drawRhino(c);
+if (animal === "TIGER") drawTiger(c);
+
+pop();
 }
 
 // ============================================================
-// ANIMAL DRAWING
-// ============================================================
-
-function drawAnimal(animal, c) {
-  if (animal === "LION") {
-    drawLion(c);
-  }
-
-  else if (animal === "WOLF") {
-    drawWolf(c);
-  }
-
-  else if (animal === "PHOENIX") {
-    drawPhoenix(c);
-  }
-
-  else if (animal === "OWL") {
-    drawOwl(c);
-  }
-
-  else if (animal === "FOX") {
-    drawFox(c);
-  }
-
-  else if (animal === "DRAGON") {
-    drawDragon(c);
-  }
-
-  else if (animal === "DOLPHIN") {
-    drawDolphin(c);
-  }
-
-  else if (animal === "SERPENT") {
-    drawSerpent(c);
-  }
-
-  else if (animal === "HAWK") {
-    drawHawk(c);
-  }
-
-  else if (animal === "EAGLE") {
-    drawEagle(c);
-  }
-
-  else if (animal === "BEAR") {
-    drawBear(c);
-  }
-
-  else if (animal === "RHINO") {
-    drawRhino(c);
-  }
-
-  else if (animal === "TIGER") {
-    drawTiger(c);
-  }
-}
-
-// ============================================================
-// BASIC ANIMAL HEAD
+// ANIMAL HELPERS
 // ============================================================
 
 function animalHead(c) {
-  noStroke();
 
-  fill(
-    c[0],
-    c[1],
-    c[2],
-    230
-  );
+noStroke();
 
-  ellipse(
-    0,
-    0,
-    38,
-    30
-  );
+fill(c[0], c[1], c[2], 225);
 
-  fill(20);
+ellipse(0, 0, 36, 29);
 
-  circle(-7, -2, 4);
-  circle(7, -2, 4);
+fill(20);
+
+circle(-7, -2, 4);
+circle(7, -2, 4);
 }
 
-// ============================================================
-// ANIMALS
-// ============================================================
-
 function drawLion(c) {
-  noStroke();
 
-  fill(230, 160, 45, 190);
-  circle(0, 0, 52);
+fill(230, 160, 45, 190);
 
-  animalHead(c);
+circle(0, 0, 50);
 
-  triangle(
-    -13,
-    -10,
-    -20,
-    -23,
-    -4,
-    -14
-  );
+animalHead(c);
 
-  triangle(
-    13,
-    -10,
-    20,
-    -23,
-    4,
-    -14
-  );
+triangle(-13, -10, -21, -23, -5, -14);
+triangle(13, -10, 21, -23, 5, -14);
 }
 
 function drawWolf(c) {
-  animalHead(c);
 
-  fill(
-    c[0],
-    c[1],
-    c[2]
-  );
+animalHead(c);
 
-  triangle(
-    -12,
-    -9,
-    -19,
-    -25,
-    -2,
-    -15
-  );
+fill(c[0], c[1], c[2]);
 
-  triangle(
-    12,
-    -9,
-    19,
-    -25,
-    2,
-    -15
-  );
-}
-
-function drawPhoenix(c) {
-  fill(
-    c[0],
-    c[1],
-    c[2],
-    180
-  );
-
-  triangle(
-    0,
-    0,
-    -48,
-    -28,
-    -18,
-    8
-  );
-
-  triangle(
-    0,
-    0,
-    48,
-    -28,
-    18,
-    8
-  );
-
-  animalHead(c);
+triangle(-12, -10, -19, -25, -2, -15);
+triangle(12, -10, 19, -25, 2, -15);
 }
 
 function drawOwl(c) {
-  noStroke();
 
-  fill(
-    c[0],
-    c[1],
-    c[2],
-    220
-  );
+fill(c[0], c[1], c[2]);
 
-  ellipse(
-    0,
-    0,
-    40,
-    45
-  );
+ellipse(0, 0, 45, 38);
 
-  fill(15);
+fill(15);
 
-  circle(-9, -4, 12);
-  circle(9, -4, 12);
+circle(-9, -3, 10);
+circle(9, -3, 10);
 
-  fill(255);
+fill(255);
 
-  circle(-9, -4, 5);
-  circle(9, -4, 5);
+circle(-9, -3, 4);
+circle(9, -3, 4);
 
-  fill(255, 190, 40);
+fill(c[0], c[1], c[2]);
 
-  triangle(
-    -4,
-    4,
-    4,
-    4,
-    0,
-    12
-  );
+triangle(0, 2, -5, 8, 5, 8);
+}
+
+function drawPhoenix(c) {
+
+fill(c[0], c[1], c[2], 180);
+
+triangle(0, 0, -45, -25, -20, 8);
+triangle(0, 0, 45, -25, 20, 8);
+
+animalHead(c);
 }
 
 function drawFox(c) {
-  animalHead(c);
 
-  fill(
-    c[0],
-    c[1],
-    c[2]
-  );
+animalHead(c);
 
-  triangle(
-    -12,
-    -10,
-    -21,
-    -26,
-    -3,
-    -15
-  );
-
-  triangle(
-    12,
-    -10,
-    21,
-    -26,
-    3,
-    -15
-  );
+triangle(-12, -10, -20, -25, -3, -15);
+triangle(12, -10, 20, -25, 3, -15);
 }
 
 function drawDragon(c) {
-  animalHead(c);
 
-  stroke(
-    c[0],
-    c[1],
-    c[2]
-  );
+animalHead(c);
 
-  strokeWeight(4);
+stroke(c[0], c[1], c[2]);
+strokeWeight(4);
 
-  line(
-    -12,
-    -10,
-    -26,
-    -24
-  );
+line(-12, -10, -25, -23);
+line(12, -10, 25, -23);
 
-  line(
-    12,
-    -10,
-    26,
-    -24
-  );
-
-  noStroke();
+noStroke();
 }
 
 function drawDolphin(c) {
-  fill(
-    c[0],
-    c[1],
-    c[2]
-  );
 
-  ellipse(
-    0,
-    0,
-    48,
-    22
-  );
+fill(c[0], c[1], c[2]);
 
-  triangle(
-    18,
-    0,
-    40,
-    -10,
-    36,
-    8
-  );
+ellipse(0, 0, 45, 20);
 
-  triangle(
-    -5,
-    -5,
-    -18,
-    -18,
-    3,
-    -10
-  );
+triangle(18, 0, 40, -10, 36, 9);
+
+triangle(
+-5,
+-5,
+-18,
+-18,
+2,
+-10
+);
 }
 
 function drawSerpent(c) {
-  noFill();
 
-  stroke(
-    c[0],
-    c[1],
-    c[2]
-  );
+noFill();
 
-  strokeWeight(8);
+stroke(c[0], c[1], c[2]);
+strokeWeight(8);
 
-  beginShape();
+beginShape();
 
-  for (
-    let x = -38;
-    x <= 38;
-    x += 5
-  ) {
-    vertex(
-      x,
-      sin(
-        x * 0.15 +
-        worldTime
-      ) * 10
-    );
-  }
+for (let x = -35; x <= 35; x += 5) {
 
-  endShape();
+```
+vertex(
+  x,
+  sin(x * 0.15 + worldTime) * 10
+);
+```
 
-  noStroke();
+}
+
+endShape();
+
+noStroke();
 }
 
 function drawHawk(c) {
-  fill(
-    c[0],
-    c[1],
-    c[2]
-  );
 
-  triangle(
-    0,
-    0,
-    -48,
-    -27,
-    -10,
-    6
-  );
+fill(c[0], c[1], c[2]);
 
-  triangle(
-    0,
-    0,
-    48,
-    -27,
-    10,
-    6
-  );
+triangle(0, 0, -45, -25, -10, 5);
+triangle(0, 0, 45, -25, 10, 5);
 
-  animalHead(c);
+animalHead(c);
 }
 
 function drawEagle(c) {
-  drawHawk(c);
+
+drawHawk(c);
 }
 
 function drawBear(c) {
-  animalHead(c);
 
-  fill(
-    c[0],
-    c[1],
-    c[2]
-  );
+animalHead(c);
 
-  circle(-14, -13, 14);
-  circle(14, -13, 14);
+fill(c[0], c[1], c[2]);
+
+circle(-13, -12, 13);
+circle(13, -12, 13);
 }
 
 function drawRhino(c) {
-  fill(
-    c[0],
-    c[1],
-    c[2]
-  );
 
-  ellipse(
-    0,
-    0,
-    50,
-    32
-  );
+fill(c[0], c[1], c[2]);
 
-  triangle(
-    20,
-    -5,
-    44,
-    -14,
-    29,
-    5
-  );
+ellipse(0, 0, 48, 30);
+
+triangle(
+20,
+-5,
+42,
+-12,
+28,
+4
+);
 }
 
 function drawTiger(c) {
-  animalHead(c);
 
-  stroke(20);
+animalHead(c);
+
+stroke(20);
+strokeWeight(3);
+
+line(-10, -5, -16, 3);
+line(10, -5, 16, 3);
+
+line(-5, -10, -10, -17);
+line(5, -10, 10, -17);
+
+noStroke();
+}
+
+// ============================================================
+// POWER EFFECTS
+// ============================================================
+
+function drawPowerEffects() {
+
+let c = powers[currentPower].color;
+
+push();
+
+// SUN
+if (currentPower === "SUN") {
+
+```
+noFill();
+
+stroke(c[0], c[1], c[2], 110);
+strokeWeight(2);
+
+let angle = worldTime * 2;
+
+for (let i = 0; i < 12; i++) {
+
+  let a =
+    angle +
+    TWO_PI * i / 12;
+
+  line(
+    player.x + cos(a) * 28,
+    player.y + sin(a) * 28,
+
+    player.x + cos(a) * 70,
+    player.y + sin(a) * 70
+  );
+}
+```
+
+}
+
+// MOON
+else if (currentPower === "MOON") {
+
+```
+noFill();
+
+stroke(c[0], c[1], c[2], 100);
+strokeWeight(2);
+
+ellipse(
+  player.x,
+  player.y,
+  100,
+  50
+);
+
+ellipse(
+  player.x,
+  player.y,
+  145,
+  75
+);
+```
+
+}
+
+// FIRE
+else if (currentPower === "FIRE") {
+
+```
+noStroke();
+
+fill(255, 70, 10, 80);
+
+ellipse(
+  player.x,
+  player.y + 10,
+  65,
+  90
+);
+
+for (let i = 0; i < 12; i++) {
+
+  let px =
+    player.x + random(-30, 30);
+
+  let py =
+    player.y + random(-55, 20);
+
+  fill(
+    255,
+    random(70, 180),
+    10,
+    120
+  );
+
+  circle(
+    px,
+    py,
+    random(4, 10)
+  );
+}
+```
+
+}
+
+// WATER
+else if (currentPower === "WATER") {
+
+```
+noFill();
+
+stroke(c[0], c[1], c[2], 110);
+strokeWeight(2);
+
+ellipse(player.x, player.y, 105, 40);
+ellipse(player.x, player.y, 145, 60);
+ellipse(player.x, player.y, 180, 80);
+```
+
+}
+
+// WIND
+else if (currentPower === "WIND") {
+
+```
+noFill();
+
+stroke(c[0], c[1], c[2], 120);
+strokeWeight(2);
+
+arc(
+  player.x,
+  player.y,
+  130,
+  85,
+  worldTime,
+  worldTime + PI
+);
+
+arc(
+  player.x,
+  player.y,
+  165,
+  105,
+  worldTime + PI,
+  worldTime + TWO_PI
+);
+```
+
+}
+
+// EARTH
+else if (currentPower === "EARTH") {
+
+```
+noStroke();
+
+fill(c[0], c[1], c[2], 70);
+
+circle(
+  player.x,
+  player.y + 25,
+  65
+);
+
+fill(c[0], c[1], c[2], 35);
+
+circle(
+  player.x,
+  player.y + 25,
+  105
+);
+```
+
+}
+
+// THUNDER
+else if (currentPower === "THUNDER") {
+
+```
+if (frameCount % 8 === 0) {
+
+  stroke(
+    200,
+    235,
+    255,
+    220
+  );
+
   strokeWeight(3);
 
-  line(-10, -5, -17, 4);
-  line(10, -5, 17, 4);
-  line(-5, -10, -10, -18);
-  line(5, -10, 10, -18);
+  drawLightning(
+    player.x - 60,
+    player.y - 70,
+    player.x,
+    player.y
+  );
 
-  noStroke();
+  drawLightning(
+    player.x + 60,
+    player.y - 70,
+    player.x,
+    player.y
+  );
+}
+```
+
+}
+
+pop();
+}
+
+// ============================================================
+// LIGHTNING
+// ============================================================
+
+function drawLightning(x1, y1, x2, y2) {
+
+let midX =
+(x1 + x2) / 2 +
+random(-18, 18);
+
+let midY =
+(y1 + y2) / 2 +
+random(-18, 18);
+
+line(x1, y1, midX, midY);
+line(midX, midY, x2, y2);
 }
 
 // ============================================================
@@ -1518,455 +1037,390 @@ function drawTiger(c) {
 // ============================================================
 
 function drawHUD() {
-  let c =
-    powers[currentPower].color;
 
-  let form =
-    powers[currentPower]
-      .forms[currentForm];
+let c = powers[currentPower].color;
 
-  // Top bar
-  noStroke();
+// Top bar
+noStroke();
 
-  fill(4, 10, 20, 235);
+fill(4, 10, 20, 245);
 
-  rect(
-    0,
-    0,
-    width,
-    82
-  );
+rect(
+0,
+0,
+width,
+82
+);
 
-  // Title
-  textAlign(LEFT, CENTER);
+// Title
+textAlign(LEFT, CENTER);
 
-  textStyle(BOLD);
+textStyle(BOLD);
 
-  fill(255, 210, 120);
+textSize(
+min(24, width * 0.035)
+);
 
-  textSize(
-    min(23, width * 0.025)
-  );
+fill(255, 210, 120);
 
-  text(
-    "CELESTIAL POWERS",
-    20,
-    25
-  );
+text(
+"CELESTIAL POWERS",
+22,
+27
+);
 
-  textStyle(NORMAL);
+textSize(11);
 
-  textSize(11);
+fill(100, 200, 240);
 
-  fill(100, 200, 240);
+text(
+"JŪNITEN ELEMENTAL DYNAMICS",
+24,
+53
+);
 
-  text(
-    "JŪNITEN ELEMENTAL DYNAMICS",
-    22,
-    52
-  );
+// Current form
+let form =
+powers[currentPower].forms[currentForm];
 
-  // Current form
-  textAlign(RIGHT, CENTER);
+textAlign(RIGHT, CENTER);
 
-  textSize(17);
+textSize(
+min(17, width * 0.025)
+);
 
-  fill(
-    c[0],
-    c[1],
-    c[2]
-  );
+fill(c[0], c[1], c[2]);
 
-  text(
-    form[1],
-    width - 20,
-    25
-  );
+text(
+form[1],
+width - 22,
+27
+);
 
-  textSize(11);
+textSize(11);
 
-  fill(220);
+fill(220);
 
-  text(
-    currentPower +
-    " • " +
-    form[2] +
-    " • KEY " +
-    form[0],
-    width - 20,
-    52
-  );
+text(
+currentPower +
+" • " +
+form[2],
+width - 22,
+53
+);
 
-  // Bottom movement HUD
-  fill(5, 15, 28, 220);
+textStyle(NORMAL);
 
-  rect(
-    20,
-    height - 75,
-    190,
-    55,
-    8
-  );
+// Movement panel
+fill(8, 18, 30, 230);
 
-  textAlign(CENTER, CENTER);
+stroke(70, 100, 130);
 
-  textSize(12);
+rect(
+18,
+height - 92,
+185,
+70,
+8
+);
 
-  fill(220);
+noStroke();
 
-  text(
-    "WASD • MOVE",
-    115,
-    height - 56
-  );
+textAlign(CENTER, CENTER);
 
-  textSize(10);
+fill(220);
 
-  fill(140, 200, 230);
+textSize(11);
 
-  text(
-    "M GUIDE • SPACE RESET",
-    115,
-    height - 35
-  );
+text(
+"WASD  MOVE",
+110,
+height - 76
+);
+
+fill(120, 210, 255);
+
+textSize(13);
+
+text(
+"1-7 POWERS   •   F FULLSCREEN",
+110,
+height - 50
+);
 }
 
 // ============================================================
-// GAME GUIDE
+// GUIDE
 // ============================================================
 
 function drawGuide() {
-  fill(0, 5, 15, 215);
 
-  noStroke();
+// Overlay
+noStroke();
 
-  rect(
-    0,
-    0,
-    width,
-    height
-  );
+fill(0, 5, 15, 215);
 
-  let panelW =
-    min(
-      width - 40,
-      1050
-    );
+rect(
+0,
+0,
+width,
+height
+);
 
-  let panelH =
-    min(
-      height - 40,
-      700
-    );
+let gw =
+min(width - 40, 1100);
 
-  let gx =
-    (width - panelW) / 2;
+let gh =
+min(height - 40, 690);
 
-  let gy =
-    (height - panelH) / 2;
+let gx =
+(width - gw) / 2;
 
-  fill(7, 15, 30, 250);
+let gy =
+(height - gh) / 2;
 
-  stroke(80, 150, 220);
+fill(7, 15, 28, 250);
 
-  strokeWeight(2);
+stroke(80, 150, 210);
 
-  rect(
-    gx,
-    gy,
-    panelW,
-    panelH,
-    12
-  );
+strokeWeight(2);
 
-  noStroke();
+rect(
+gx,
+gy,
+gw,
+gh,
+14
+);
 
-  textAlign(
-    CENTER,
-    CENTER
-  );
+// Header
+noStroke();
 
-  textStyle(BOLD);
+textAlign(CENTER, CENTER);
 
-  textSize(
-    min(28, width * 0.035)
-  );
+textStyle(BOLD);
 
-  fill(255, 205, 100);
+textSize(
+min(28, width * 0.045)
+);
 
-  text(
-    "JŪNITEN GAME GUIDE",
-    width / 2,
-    gy + 38
-  );
+fill(255, 205, 100);
 
-  textStyle(NORMAL);
+text(
+"JŪNITEN GAME GUIDE",
+width / 2,
+gy + 38
+);
 
-  textSize(12);
+textStyle(NORMAL);
 
-  fill(150, 210, 240);
+textSize(13);
 
-  text(
-    "PRESS M TO CLOSE",
-    width / 2,
-    gy + 67
-  );
+fill(150, 210, 240);
 
-  // Movement
-  textAlign(LEFT, TOP);
+text(
+"PRESS M TO START",
+width / 2,
+gy + 68
+);
 
-  textStyle(BOLD);
+// Movement
+textAlign(LEFT, TOP);
 
-  textSize(17);
+textStyle(BOLD);
 
-  fill(255, 195, 60);
+textSize(18);
 
-  text(
-    "MOVEMENT",
-    gx + 30,
-    gy + 105
-  );
+fill(255, 195, 60);
 
-  textStyle(NORMAL);
+text(
+"MOVEMENT",
+gx + 30,
+gy + 105
+);
 
-  textSize(13);
+textStyle(NORMAL);
 
-  fill(230);
+textSize(14);
 
-  text(
-    "W = UP",
-    gx + 30,
-    gy + 138
-  );
+fill(230);
 
-  text(
-    "A = LEFT",
-    gx + 30,
-    gy + 162
-  );
+text(
+"W = UP",
+gx + 30,
+gy + 140
+);
 
-  text(
-    "S = DOWN",
-    gx + 30,
-    gy + 186
-  );
+text(
+"A = LEFT",
+gx + 30,
+gy + 165
+);
 
-  text(
-    "D = RIGHT",
-    gx + 30,
-    gy + 210
-  );
+text(
+"S = DOWN",
+gx + 30,
+gy + 190
+);
 
-  // Powers
-  textStyle(BOLD);
+text(
+"D = RIGHT",
+gx + 30,
+gy + 215
+);
 
-  textSize(17);
+text(
+"SPACE = RESET",
+gx + 30,
+gy + 245
+);
 
-  fill(255, 195, 60);
+text(
+"F = FULLSCREEN",
+gx + 30,
+gy + 270
+);
 
-  text(
-    "POWER FORMS",
-    gx + panelW * 0.48,
-    gy + 105
-  );
+// Powers
+textStyle(BOLD);
 
-  let names =
-    Object.keys(powers);
+textSize(18);
 
-  let startY =
-    gy + 138;
+fill(255, 195, 60);
 
-  textSize(12);
+text(
+"POWER FORMS",
+gx + gw * 0.48,
+gy + 105
+);
 
-  for (
-    let i = 0;
-    i < names.length;
-    i++
-  ) {
-    let name =
-      names[i];
+textStyle(NORMAL);
 
-    let data =
-      powers[name];
+textSize(13);
 
-    let y =
-      startY + i * 32;
+for (let i = 0; i < powerOrder.length; i++) {
 
-    fill(
-      data.color[0],
-      data.color[1],
-      data.color[2]
-    );
+```
+let power =
+  powerOrder[i];
 
-    textStyle(BOLD);
+let data =
+  powers[power];
 
-    text(
-      name,
-      gx + panelW * 0.48,
-      y
-    );
+let y =
+  gy + 140 + i * 42;
 
-    textStyle(NORMAL);
+fill(
+  data.color[0],
+  data.color[1],
+  data.color[2]
+);
 
-    fill(225);
+textStyle(BOLD);
 
-    let forms =
-      data.forms;
+text(
+  power,
+  gx + gw * 0.48,
+  y
+);
 
-    for (
-      let j = 0;
-      j < forms.length;
-      j++
-    ) {
-      let x =
-        gx +
-        panelW * 0.60 +
-        j * 125;
+textStyle(NORMAL);
 
-      text(
-        forms[j][0] +
-        " " +
-        forms[j][1],
-        x,
-        y
-      );
-    }
-  }
+fill(225);
 
-  // Gameplay
-  textStyle(BOLD);
+for (let j = 0; j < 3; j++) {
 
-  textSize(17);
-
-  fill(255, 195, 60);
+  let form =
+    data.forms[j];
 
   text(
-    "GAMEPLAY",
-    gx + 30,
-    gy + 395
+    form[0] +
+    "  " +
+    form[1],
+
+    gx + gw * 0.57 +
+    j * 105,
+
+    y
   );
+}
+```
 
-  textStyle(NORMAL);
+}
 
-  textSize(13);
+// Current form
+let active =
+powers[currentPower].forms[currentForm];
 
-  fill(225);
+fill(15, 30, 45);
 
-  text(
-    "• Move your celestial warrior with WASD.",
-    gx + 30,
-    gy + 425
-  );
+stroke(60, 100, 130);
 
-  text(
-    "• Switch between seven elemental powers.",
-    gx + 30,
-    gy + 450
-  );
+rect(
+gx + 30,
+gy + gh - 105,
+gw - 60,
+65,
+8
+);
 
-  text(
-    "• Each power contains three playable forms.",
-    gx + 30,
-    gy + 475
-  );
+noStroke();
 
-  text(
-    "• Every form has an animal companion.",
-    gx + 30,
-    gy + 500
-  );
+textAlign(CENTER, CENTER);
 
-  text(
-    "• SPACE resets your character.",
-    gx + 30,
-    gy + 525
-  );
+textStyle(BOLD);
 
-  text(
-    "• Use the fullscreen button or browser F11.",
-    gx + 30,
-    gy + 550
-  );
+textSize(17);
 
-  // Active form
-  let active =
-    powers[currentPower]
-      .forms[currentForm];
+fill(
+powers[currentPower].color[0],
+powers[currentPower].color[1],
+powers[currentPower].color[2]
+);
 
-  fill(15, 30, 45);
+text(
+"CURRENT FORM: " +
+active[1],
+width / 2,
+gy + gh - 80
+);
 
-  rect(
-    gx + 30,
-    gy + panelH - 80,
-    panelW - 60,
-    55,
-    8
-  );
+textStyle(NORMAL);
 
-  textAlign(
-    CENTER,
-    CENTER
-  );
+textSize(12);
 
-  textStyle(BOLD);
+fill(220);
 
-  textSize(16);
-
-  fill(
-    powers[currentPower]
-      .color[0],
-    powers[currentPower]
-      .color[1],
-    powers[currentPower]
-      .color[2]
-  );
-
-  text(
-    "CURRENT FORM: " +
-    active[1] +
-    " • " +
-    active[2],
-    width / 2,
-    gy + panelH - 58
-  );
-
-  textStyle(NORMAL);
+text(
+"COMPANION: " +
+active[2] +
+"  •  PRESS M TO PLAY",
+width / 2,
+gy + gh - 58
+);
 }
 
 // ============================================================
-// FULLSCREEN
+// GAME RESET
 // ============================================================
 
-function createFullscreenButton() {
-  fullscreenButton =
-    createButton("FULLSCREEN");
+function resetGame() {
 
-  fullscreenButton.id(
-    "fullscreen-button"
-  );
-
-  fullscreenButton.mousePressed(
-    toggleFullscreen
-  );
+if (!player || !companion) {
+return;
 }
 
-function toggleFullscreen() {
-  let fs =
-    fullscreen();
+player.x = width / 2;
+player.y = height / 2 + 50;
 
-  fullscreen(
-    !fs
-  );
+player.direction = "DOWN";
+player.walkCycle = 0;
 
-  setTimeout(
-    () => {
-      resizeCanvas(
-        windowWidth,
-        windowHeight
-      );
-    },
-    100
-  );
+companion.x =
+player.x - 60;
+
+companion.y =
+player.y + 25;
 }
 
 // ============================================================
@@ -1974,156 +1428,135 @@ function toggleFullscreen() {
 // ============================================================
 
 function keyPressed() {
-  let k =
-    key.toUpperCase();
 
-  keys[k] = true;
+let k =
+String(key).toUpperCase();
 
-  // GUIDE
-  if (k === "M") {
-    showGuide =
-      !showGuide;
+keys[k] = true;
+
+// Guide
+if (k === "M") {
+
+```
+showGuide =
+  !showGuide;
+
+return false;
+```
+
+}
+
+// Reset
+if (keyCode === 32) {
+
+```
+resetGame();
+
+return false;
+```
+
+}
+
+// Fullscreen
+if (k === "F") {
+
+```
+toggleFullscreen();
+
+return false;
+```
+
+}
+
+// Powers
+if (k >= "1" && k <= "7") {
+
+```
+let index =
+  int(k) - 1;
+
+setPower(
+  powerOrder[index]
+);
+
+return false;
+```
+
+}
+
+// Forms
+for (let i = 0; i < powerOrder.length; i++) {
+
+```
+let power =
+  powerOrder[i];
+
+let forms =
+  powers[power].forms;
+
+for (let j = 0; j < forms.length; j++) {
+
+  if (k === forms[j][0]) {
+
+    currentPower = power;
+    currentForm = j;
 
     return false;
   }
+}
+```
 
-  // RESET
-  if (keyCode === 32) {
-    resetGame();
+}
 
-    return false;
-  }
-
-  // POWER NUMBER KEYS
-  if (k === "1") {
-    selectPower("SUN", 0);
-    return false;
-  }
-
-  if (k === "2") {
-    selectPower("MOON", 0);
-    return false;
-  }
-
-  if (k === "3") {
-    selectPower("FIRE", 0);
-    return false;
-  }
-
-  if (k === "4") {
-    selectPower("WATER", 0);
-    return false;
-  }
-
-  if (k === "5") {
-    selectPower("WIND", 0);
-    return false;
-  }
-
-  if (k === "6") {
-    selectPower("EARTH", 0);
-    return false;
-  }
-
-  if (k === "7") {
-    selectPower("THUNDER", 0);
-    return false;
-  }
-
-  // FORM KEYS
-  selectFormByKey(k);
-
-  return false;
+return false;
 }
 
 function keyReleased() {
-  let k =
-    key.toUpperCase();
 
-  keys[k] = false;
+let k =
+String(key).toUpperCase();
 
-  return false;
+keys[k] = false;
+
+return false;
 }
 
 // ============================================================
-// FORM SELECTION
+// POWER SWITCH
 // ============================================================
 
-function selectFormByKey(k) {
-  let names =
-    Object.keys(powers);
+function setPower(power) {
 
-  for (
-    let i = 0;
-    i < names.length;
-    i++
-  ) {
-    let power =
-      names[i];
-
-    let forms =
-      powers[power].forms;
-
-    for (
-      let j = 0;
-      j < forms.length;
-      j++
-    ) {
-      if (
-        forms[j][0] === k
-      ) {
-        selectPower(
-          power,
-          j
-        );
-
-        return;
-      }
-    }
-  }
-}
-
-function selectPower(
-  power,
-  formIndex
-) {
-  currentPower =
-    power;
-
-  currentForm =
-    formIndex;
-
-  resetParticles();
+currentPower = power;
+currentForm = 0;
 }
 
 // ============================================================
-// RESET
+// FULLSCREEN
 // ============================================================
 
-function resetGame() {
-  if (!player) {
-    return;
-  }
+function toggleFullscreen() {
 
-  player.x =
-    width / 2;
+let element =
+document.documentElement;
 
-  player.y =
-    height / 2;
+if (!document.fullscreenElement) {
 
-  player.direction =
-    "DOWN";
+```
+if (element.requestFullscreen) {
+  element.requestFullscreen();
+}
+```
 
-  player.walkCycle =
-    0;
+} else {
 
-  companion.x =
-    player.x - 55;
+```
+if (document.exitFullscreen) {
+  document.exitFullscreen();
+}
+```
 
-  companion.y =
-    player.y + 20;
-
-  resetParticles();
+}
 }
 
 // ============================================================
@@ -2131,11 +1564,11 @@ function resetGame() {
 // ============================================================
 
 function mousePressed() {
-  // Don't let the guide
-  // accidentally interact
-  // with the game.
 
-  if (showGuide) {
-    return;
-  }
+// Clicking the canvas while guide
+// is visible starts the game.
+
+if (showGuide) {
+showGuide = false;
+}
 }
