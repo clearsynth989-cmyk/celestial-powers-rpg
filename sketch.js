@@ -1,4 +1,5 @@
 # /*
+Ashley Nehemiah Smith
 
 CELESTIAL POWERS RPG
 JŪNITEN ELEMENTAL DYNAMICS
