@@ -33,6 +33,15 @@ F = Fullscreen
 ==============
 
 */
+let particles = [];
+let mode = "SUN";
+let buttons = [];
+
+function setup() {
+  createCanvas(800, 600);
+  initButtons();
+  resetParticles(200);
+}
 
 let player;
 let companion;
